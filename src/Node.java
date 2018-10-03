@@ -5,12 +5,14 @@ public class Node {
     String name;
     boolean evidence;
     boolean query;
+    boolean neither;
 
     public Node(String name, ArrayList<Double> probabilities) {
         this.name = name;
         this.probabilities = probabilities;
         this.evidence = false;
         this.query = false;
+        this.neither = false;
     }
 
     public String getName() {

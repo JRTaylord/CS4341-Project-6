@@ -78,4 +78,36 @@ public class BayesianNetwork {
             }
         }
     }
+
+    /**
+     *
+     * @param assignments: a list of preprocessed strings
+     */
+    public void assignNodes(ArrayList<String> assignments){
+        for (int i = 0; i < assignments.size(); i++) {
+            Node node = this.nodes.get(i);
+            switch (assignments.get(i)){
+                case "?":
+                case "q":
+                    node.query = true;
+                    node.neither = false;
+                    break;
+                case "t":
+                    node.evidence = true;
+                    node.query = false;
+                    node.neither = false;
+                    break;
+                case "f":
+                    node.evidence = false;
+                    node.query = false;
+                    node.neither = false;
+                    break;
+                case "-":
+                    node.evidence = false;
+                    node.query = false;
+                    node.neither = true;
+                    break;
+            }
+        }
+    }
 }
