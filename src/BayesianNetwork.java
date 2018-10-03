@@ -8,6 +8,8 @@ public class BayesianNetwork {
      * @param input: an ArrayList of unformatted input Strings
      */
     public BayesianNetwork(ArrayList<String> input) {
+        this.nodes = new ArrayList<>();
+        this.edges = new ArrayList<>();
         // Node creation
         int stage;
         ArrayList<ArrayList> soonToBeEdges = new ArrayList<>();
@@ -58,7 +60,8 @@ public class BayesianNetwork {
                         break;
                 }
             }
-            this.nodes.add(new Node(nodeName, nodeProbabilities));
+            Node node = new Node(nodeName, nodeProbabilities);
+            this.nodes.add(node);
             soonToBeEdges.add(nodeParents);
         }
         // Edge Creation
