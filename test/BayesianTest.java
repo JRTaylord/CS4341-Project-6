@@ -19,4 +19,16 @@ public class BayesianTest extends TestCase {
         Node newChildNode = new Node("newChildNode", childProbability);
         assertEquals(newChildNode, childNode);
     }
+
+    public void testBayesianNetworkConstructor(){
+        ArrayList<Double> probabilities1 = new ArrayList<>();
+        probabilities1.add(0.4);
+        Node node1 = new Node("node1", probabilities1);
+        ArrayList<String> input = new ArrayList<>();
+        input.add("node1: [] [0.4]");
+        input.add("node2: [node1] [0.5 0.6]");
+        input.add("node3: [node1 node2] [0.25 0.75 0.8 0.1]");
+        BayesianNetwork bN = new BayesianNetwork(input);
+        assertEquals(node1.probabilities.get(0), bN.nodes.get(0).probabilities.get(0));
+    }
 }
