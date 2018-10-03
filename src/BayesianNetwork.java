@@ -5,7 +5,7 @@ public class BayesianNetwork {
     ArrayList<Edge> edges;
 
     /**
-     * @param input: an ArrayList of unformatted input Strings
+     * @param input: an ArrayList of input Strings in the format of Option B
      */
     public BayesianNetwork(ArrayList<String> input) {
         this.nodes = new ArrayList<>();
