@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.ArrayList;
 
 public class BayesianNetwork {
@@ -81,33 +82,71 @@ public class BayesianNetwork {
 
     /**
      *
-     * @param assignments: a list of preprocessed strings
+     * @param assignments: a list of preprocessed chars
      */
-    public void assignNodes(ArrayList<String> assignments){
+    public void assignNodes(ArrayList<Character> assignments){
         for (int i = 0; i < assignments.size(); i++) {
             Node node = this.nodes.get(i);
             switch (assignments.get(i)){
-                case "?":
-                case "q":
+                case '?':
+                case 'q':
                     node.query = true;
                     node.neither = false;
                     break;
-                case "t":
+                case 't':
                     node.evidence = true;
                     node.query = false;
                     node.neither = false;
                     break;
-                case "f":
+                case 'f':
                     node.evidence = false;
                     node.query = false;
                     node.neither = false;
                     break;
-                case "-":
+                case '-':
                     node.evidence = false;
                     node.query = false;
                     node.neither = true;
                     break;
             }
         }
+    }
+
+    /**
+     * Acts as a wrapper for the testable method of assigning states to nodes in the Bayesian Network
+     * @param fileName
+     */
+    public void assignNodesFileWrapper(String fileName){
+        File file = new File(fileName);
+        BufferedReader reader = null;
+
+        ArrayList<Character> assigments = new ArrayList<>();
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            String text = null;
+
+            while ((text = reader.readLine()) != null) {
+                for (int i = 0; i < text.length(); i++) {
+                    switch (text.charAt(i)){
+                        case (','):
+                            break;
+                        default:
+                            assigments.add(text.charAt(i));
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+        this.assignNodes(assigments);
     }
 }
