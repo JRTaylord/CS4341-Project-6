@@ -149,4 +149,12 @@ public class BayesianNetwork {
         }
         this.assignNodes(assigments);
     }
+
+    public void rejectionSampling(){
+
+    }
+
+    public void likelihoodWeightingSampling(){
+
+    }
 }
