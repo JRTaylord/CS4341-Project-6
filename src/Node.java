@@ -14,4 +14,8 @@ public class Node {
         boolean observed = false;
         boolean query = false;
     }
+
+    public String getName(){
+        return name;
+    }
 }
