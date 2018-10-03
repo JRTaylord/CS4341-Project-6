@@ -15,7 +15,7 @@ public class BayesianNetwork {
                 input) {
             stage = 0;
             String nodeName = "";
-            ArrayList<Long> nodeProbabilities = new ArrayList<>();
+            ArrayList<Double> nodeProbabilities = new ArrayList<>();
             ArrayList<String> nodeParents = new ArrayList<>();
             String parentName = "";
             String probability = "";
@@ -48,7 +48,7 @@ public class BayesianNetwork {
                             case ']':
                                 stage++;
                             case ' ':
-                                nodeProbabilities.add(Long.parseLong(probability));
+                                nodeProbabilities.add(Double.parseDouble(probability));
                                 probability = "";
                                 break;
                             default:
