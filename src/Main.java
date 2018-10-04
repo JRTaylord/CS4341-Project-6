@@ -7,8 +7,9 @@ public class Main {
     	BayesianNetwork bn = BayesianNetwork.createBayesianFromFile(args[0]);
     	bn.assignNodesFileWrapper(args[1]);
     	
-    	double rS = bn.rejectionSampling(Integer.parseInt(args[2]));
-    	double lW = bn.likelihoodWeightingSampling(Integer.parseInt(args[2]));
+    	double[] rS = bn.rejectionSampling(Integer.parseInt(args[2]));
+    	System.out.println(rS[0] + ", "+rS[1]);
+    	//double lW = bn.likelihoodWeightingSampling(Integer.parseInt(args[2]));
     	
     }
 }

@@ -1,193 +1,241 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class BayesianNetwork {
-    ArrayList<Node> nodes;
-    ArrayList<Edge> edges;
+	ArrayList<Node> nodes;
+	ArrayList<Edge> edges;
+	int queryNodeIndex;
 
-    /**
-     * @param input: an ArrayList of input Strings in the format of Option B
-     */
-    public BayesianNetwork(ArrayList<String> input) {
-        this.nodes = new ArrayList<>();
-        this.edges = new ArrayList<>();
-        // Node creation
-        int stage;
-        ArrayList<ArrayList> soonToBeEdges = new ArrayList<>();
-        for (String nodeDesc :
-                input) {
-            stage = 0;
-            String nodeName = "";
-            ArrayList<Double> nodeProbabilities = new ArrayList<>();
-            ArrayList<String> nodeParents = new ArrayList<>();
-            String parentName = "";
-            String probability = "";
-            for (int i = 0; i < nodeDesc.length(); i++) {
-                switch (stage) {
-                    case 0:
-                        if (nodeDesc.charAt(i) != ':') {
-                            nodeName += nodeDesc.charAt(i);
-                        } else stage++;
-                        break;
-                    case 1:
-                    case 3:
-                        if (nodeDesc.charAt(i) == '[') stage++;
-                        break;
-                    case 2:
-                        switch (nodeDesc.charAt(i)) {
-                            case ']':
-                                stage++;
-                            case ' ':
-                                nodeParents.add(parentName);
-                                parentName = "";
-                                break;
-                            default:
-                                parentName += nodeDesc.charAt(i);
-                                break;
-                        }
-                        break;
-                    case 4:
-                        switch (nodeDesc.charAt(i)) {
-                            case ']':
-                                stage++;
-                            case ' ':
-                                nodeProbabilities.add(Double.parseDouble(probability));
-                                probability = "";
-                                break;
-                            default:
-                                probability += nodeDesc.charAt(i);
-                                break;
-                        }
-                        break;
-                }
-            }
-            Node node = new Node(nodeName, nodeProbabilities);
-            this.nodes.add(node);
-            soonToBeEdges.add(nodeParents);
-        }
-        // Edge Creation
-        // Since the list of prospective edges and established nodes are aligned, we can count on each edge being accurate
-        for (int i = 0; i < soonToBeEdges.size(); i++) {
-            for (int j = 0; j < soonToBeEdges.get(i).size(); j++) {
-                for (Node node :
-                        nodes) {
-                    if (node.name.equals(soonToBeEdges.get(i).get(j))) {
-                        this.edges.add(new Edge(node, nodes.get(i), j));
-                        break;
-                    }
-                }
-            }
-        }
-    }
+	/**
+	 * @param input:
+	 *            an ArrayList of input Strings in the format of Option B
+	 */
+	public BayesianNetwork(ArrayList<String> input) {
+		this.nodes = new ArrayList<>();
+		this.edges = new ArrayList<>();
+		// Node creation
+		int stage;
+		ArrayList<ArrayList> soonToBeEdges = new ArrayList<>();
+		for (String nodeDesc : input) {
+			stage = 0;
+			String nodeName = "";
+			ArrayList<Double> nodeProbabilities = new ArrayList<>();
+			ArrayList<String> nodeParents = new ArrayList<>();
+			String parentName = "";
+			String probability = "";
+			for (int i = 0; i < nodeDesc.length(); i++) {
+				switch (stage) {
+				case 0:
+					if (nodeDesc.charAt(i) != ':') {
+						nodeName += nodeDesc.charAt(i);
+					} else
+						stage++;
+					break;
+				case 1:
+				case 3:
+					if (nodeDesc.charAt(i) == '[')
+						stage++;
+					break;
+				case 2:
+					switch (nodeDesc.charAt(i)) {
+					case ']':
+						stage++;
+					case ' ':
+						nodeParents.add(parentName);
+						parentName = "";
+						break;
+					default:
+						parentName += nodeDesc.charAt(i);
+						break;
+					}
+					break;
+				case 4:
+					switch (nodeDesc.charAt(i)) {
+					case ']':
+						stage++;
+					case ' ':
+						nodeProbabilities.add(Double.parseDouble(probability));
+						probability = "";
+						break;
+					default:
+						probability += nodeDesc.charAt(i);
+						break;
+					}
+					break;
+				}
+			}
+			Node node = new Node(nodeName, nodeProbabilities);
+			this.nodes.add(node);
+			soonToBeEdges.add(nodeParents);
+		}
+		// Edge Creation
+		// Since the list of prospective edges and established nodes are aligned, we can
+		// count on each edge being accurate
+		for (int i = 0; i < soonToBeEdges.size(); i++) {
+			for (int j = 0; j < soonToBeEdges.get(i).size(); j++) {
+				for (Node node : nodes) {
+					if (node.name.equals(soonToBeEdges.get(i).get(j))) {
+						Edge tempEdge = new Edge(node, nodes.get(i), j);
+						this.edges.add(tempEdge);
+						nodes.get(i).parentEdges.add(tempEdge);
+						break;
+					}
+				}
+			}
+		}
+	}
 
-    /**
-     *
-     * @param assignments: a list of preprocessed chars
-     */
-    public void assignNodes(ArrayList<Character> assignments){
-        for (int i = 0; i < assignments.size(); i++) {
-            Node node = this.nodes.get(i);
-            switch (assignments.get(i)){
-                case '?':
-                case 'q':
-                    node.query = true;
-                    node.neither = false;
-                    break;
-                case 't':
-                    node.evidence = true;
-                    node.query = false;
-                    node.neither = false;
-                    break;
-                case 'f':
-                    node.evidence = false;
-                    node.query = false;
-                    node.neither = false;
-                    break;
-                case '-':
-                    node.evidence = false;
-                    node.query = false;
-                    node.neither = true;
-                    break;
-                default:
-                	break;
-            }
-        }
-    }
+	/**
+	 *
+	 * @param assignments:
+	 *            a list of preprocessed chars
+	 */
+	public void assignNodes(ArrayList<Character> assignments) {
+		for (int i = 0; i < assignments.size(); i++) {
+			Node node = this.nodes.get(i);
+			switch (assignments.get(i)) {
+			case '?':
+			case 'q':
+				node.type = "query";
+				queryNodeIndex = i;
+				break;
+			case 't':
+				node.type = "true";
+				break;
+			case 'f':
+				node.type = "false";
+				break;
+			case '-':
+				node.type = "-";
+				break;
+			default:
+				break;
+			}
+		}
+	}
 
-    /**
-     * Acts as a wrapper for the testable method of assigning states to nodes in the Bayesian Network
-     * @param fileName
-     */
-    public void assignNodesFileWrapper(String fileName){
-        File file = new File(fileName);
-        BufferedReader reader = null;
+	/**
+	 * Acts as a wrapper for the testable method of assigning states to nodes in the
+	 * Bayesian Network
+	 * 
+	 * @param fileName
+	 */
+	public void assignNodesFileWrapper(String fileName) {
+		File file = new File(fileName);
+		BufferedReader reader = null;
 
-        ArrayList<Character> assigments = new ArrayList<>();
-        try {
-            reader = new BufferedReader(new FileReader(file));
-            String text = null;
+		ArrayList<Character> assigments = new ArrayList<>();
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			String text = null;
 
-            while ((text = reader.readLine()) != null) {
-                for (int i = 0; i < text.length(); i++) {
-                    switch (text.charAt(i)){
-                        case (','):
-                            break;
-                        default:
-                            assigments.add(text.charAt(i));
-                    }
-                }
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-            }
-        }
-        this.assignNodes(assigments);
-    }
+			while ((text = reader.readLine()) != null) {
+				for (int i = 0; i < text.length(); i++) {
+					switch (text.charAt(i)) {
+					case (','):
+						break;
+					default:
+						assigments.add(text.charAt(i));
+					}
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+			}
+		}
+		this.assignNodes(assigments);
+	}
 
-    public double rejectionSampling(int sampleSize){
-    	return 0.0;
-    }
+	public double[] rejectionSampling(int sampleSize) {
+		HashMap<Boolean, Integer> queryValueCounts = new HashMap<Boolean, Integer>();
+		queryValueCounts.put(true, 0);
+		queryValueCounts.put(false, 0);
+		for (int i = 0; i < sampleSize; i++) {
+			boolean[] b = this.priorSample();
+			if (this.isConsistent(b)) {
+				queryValueCounts.put(b[queryNodeIndex], 1 + queryValueCounts.remove(b[queryNodeIndex]));
+			}
+			for (Node n : nodes) {
+				n.value = null;
+			}
+		}
+		return getNormalizedArray(queryValueCounts);
+	}
 
-    public double likelihoodWeightingSampling(int sampleSize){
-    	return 0.0;
-    }
-    public static BayesianNetwork createBayesianFromFile(String fileName) {
-    	String WITH_DELIMITER = "((?<=%1$s)|(?=%1$s))";
-        File file = new File(fileName);
-        BufferedReader reader = null;
+	private boolean[] priorSample() {
+		boolean[] boolArray = new boolean[nodes.size()];
+		for (int i = 0; i < nodes.size(); i++) {
+			boolArray[i] = nodes.get(i).getNodeValue();
+		}
 
-        ArrayList<String> nodes = new ArrayList<>();
-        try {
-            reader = new BufferedReader(new FileReader(file));
-            String text = null;
+		return boolArray;
 
-            while ((text = reader.readLine()) != null) {
-            	String[] temp = text.split(String.format(WITH_DELIMITER, "]"));
-            	for (int i =0; i<temp.length; i+=2) {
-            		nodes.add(temp[i]+temp[i+1]);//The ] appears once in middle and once at end so doing this ensures it will function correctly
-            	}
-                
-        }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-            }
-        }
-        return new BayesianNetwork(nodes);
-    }
+	}
+
+	private boolean isConsistent(boolean[] b) {
+		for (int i = 0; i < nodes.size(); i++) {
+			if (nodes.get(i).type.equals("true") && !b[i]) {
+				return false;
+			}
+			if (nodes.get(i).type.equals("false") && b[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private double[] getNormalizedArray(HashMap<Boolean, Integer> queryValueCounts) {
+		double[] array = new double[2];
+		double sum = queryValueCounts.get(true) + queryValueCounts.get(false);
+		array[0] = queryValueCounts.get(true) / sum;
+		array[1] = queryValueCounts.get(false) / sum;
+		return array;
+	}
+
+	public double likelihoodWeightingSampling(int sampleSize) {
+		return 0.0;
+	}
+
+	public static BayesianNetwork createBayesianFromFile(String fileName) {
+		File file = new File(fileName);
+		BufferedReader reader = null;
+
+		ArrayList<String> nodes = new ArrayList<>();
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			String text = null;
+
+			while ((text = reader.readLine()) != null) {
+
+				nodes.add(text);// The ] appears once in middle and once at end so doing this ensures it will
+								// function correctly
+
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+			}
+		}
+		return new BayesianNetwork(nodes);
+	}
 }

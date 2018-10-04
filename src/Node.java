@@ -3,16 +3,15 @@ import java.util.ArrayList;
 public class Node {
     ArrayList<Double> probabilities;
     String name;
-    boolean evidence;
-    boolean query;
-    boolean neither;
+    String type;
+    ArrayList<Edge> parentEdges; //edges that this node is the child on
+    Boolean value = null;
 
     public Node(String name, ArrayList<Double> probabilities) {
         this.name = name;
         this.probabilities = probabilities;
-        this.evidence = false;
-        this.query = false;
-        this.neither = false;
+        type = null;
+        parentEdges = new ArrayList<Edge>();
     }
 
     public String getName() {
@@ -24,8 +23,44 @@ public class Node {
         if (obj instanceof Node) {
             Node node = ((Node) obj);
             return this.name.equals(node.name) && this.probabilities.equals(node.probabilities) &&
-                    this.evidence == node.evidence && this.query == node.query;
+                    this.type.equals(node.type);
         }
         return false;
     }
+
+	public boolean getNodeValue() {
+		if (this.value == null) {
+			if(parentEdges.size() > 0) {
+				this.value = this.getValueFromParents();
+			}else {
+				double r = Math.random();
+				if (this.probabilities.size() != 1) {
+					System.out.println("This node has no parents but multiple probabilities, defaulting to first");
+				}
+				if (r < this.probabilities.get(0)) {
+					this.value = true;
+				}else {
+					this.value = false;
+				}
+				
+			}
+		}
+		return this.value.booleanValue();
+	}
+
+	private Boolean getValueFromParents() {
+		int binaryCode = 0;
+		for (Edge edge: this.parentEdges) {
+			if (edge.parent.getNodeValue()) {
+				binaryCode += Math.pow(2, edge.parentN);
+			}
+		}
+		Double probability = probabilities.get(binaryCode);
+		double r = Math.random();
+		if (r < probability) {
+			return true;
+		}else {
+			return false;
+		}
+	}
 }
