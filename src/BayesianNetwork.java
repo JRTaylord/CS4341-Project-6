@@ -108,6 +108,8 @@ public class BayesianNetwork {
                     node.query = false;
                     node.neither = true;
                     break;
+                default:
+                	break;
             }
         }
     }
@@ -150,11 +152,42 @@ public class BayesianNetwork {
         this.assignNodes(assigments);
     }
 
-    public void rejectionSampling(){
-
+    public double rejectionSampling(int sampleSize){
+    	return 0.0;
     }
 
-    public void likelihoodWeightingSampling(){
+    public double likelihoodWeightingSampling(int sampleSize){
+    	return 0.0;
+    }
+    public static BayesianNetwork createBayesianFromFile(String fileName) {
+    	String WITH_DELIMITER = "((?<=%1$s)|(?=%1$s))";
+        File file = new File(fileName);
+        BufferedReader reader = null;
 
+        ArrayList<String> nodes = new ArrayList<>();
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            String text = null;
+
+            while ((text = reader.readLine()) != null) {
+            	String[] temp = text.split(String.format(WITH_DELIMITER, "]"));
+            	for (int i =0; i<temp.length; i+=2) {
+            		nodes.add(temp[i]+temp[i+1]);//The ] appears once in middle and once at end so doing this ensures it will function correctly
+            	}
+                
+        }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+        return new BayesianNetwork(nodes);
     }
 }
