@@ -10,6 +10,7 @@ public class BayesianNetwork {
 	ArrayList<Node> nodes;
 	ArrayList<Edge> edges;
 	int queryNodeIndex;
+	double weight = 0;
 
 	/**
 	 * @param input:
@@ -160,9 +161,9 @@ public class BayesianNetwork {
 	}
 
 	public double[] rejectionSampling(int sampleSize) {
-		HashMap<Boolean, Integer> queryValueCounts = new HashMap<Boolean, Integer>();
-		queryValueCounts.put(true, 0);
-		queryValueCounts.put(false, 0);
+		HashMap<Boolean, Double> queryValueCounts = new HashMap<Boolean, Double>();
+		queryValueCounts.put(true, 0.0);
+		queryValueCounts.put(false, 0.0);
 		for (int i = 0; i < sampleSize; i++) {
 			boolean[] b = this.priorSample();
 			if (this.isConsistent(b)) {
@@ -170,6 +171,7 @@ public class BayesianNetwork {
 			}
 			for (Node n : nodes) {
 				n.value = null;
+				n.probability = null;
 			}
 		}
 		return getNormalizedArray(queryValueCounts);
@@ -197,7 +199,7 @@ public class BayesianNetwork {
 		return true;
 	}
 
-	private double[] getNormalizedArray(HashMap<Boolean, Integer> queryValueCounts) {
+	private double[] getNormalizedArray(HashMap<Boolean, Double> queryValueCounts) {
 		double[] array = new double[2];
 		double sum = queryValueCounts.get(true) + queryValueCounts.get(false);
 		array[0] = queryValueCounts.get(true) / sum;
@@ -205,8 +207,51 @@ public class BayesianNetwork {
 		return array;
 	}
 
-	public double likelihoodWeightingSampling(int sampleSize) {
-		return 0.0;
+	public double[] likelihoodWeightingSampling(int sampleSize) {
+		HashMap<Boolean, Double> queryValueCounts = new HashMap<Boolean, Double>();
+		queryValueCounts.put(true, 0.0);
+		queryValueCounts.put(false, 0.0);
+		for (int i = 0; i < sampleSize; i++) {
+			Boolean[] b = this.weightedSample();
+			queryValueCounts.put(b[queryNodeIndex], weight + queryValueCounts.remove(b[queryNodeIndex]));
+			for (Node n : nodes) {
+				n.value = null;
+				n.probability = null;
+			}
+		}
+		return getNormalizedArray(queryValueCounts);
+	}
+
+	private Boolean[] weightedSample() {
+		weight = 1;
+		Boolean[] array = makeArrayFromEvidence();
+		for (int i = 0; i < nodes.size(); i++) {
+			if (array[i] != null) {
+				weight = weight * nodes.get(i).getProbability();
+			} else {
+				array[i] = nodes.get(i).getNodeValue();
+			}
+		}
+		return array;
+	}
+
+	private Boolean[] makeArrayFromEvidence() {
+		Boolean array[] = new Boolean[nodes.size()];
+		for (int i = 0; i < nodes.size(); i++) {
+			Node node = nodes.get(i);
+			if (node.type.equals("true")) {
+				node.value = true;
+				array[i]= true;
+			} else {
+				if (node.type.equals("false")) {
+					node.value = false;
+					array[i]= false;
+				} else {
+					array[i] = null;
+				}
+			}
+		}
+		return array;
 	}
 
 	public static BayesianNetwork createBayesianFromFile(String fileName) {

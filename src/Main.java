@@ -9,7 +9,8 @@ public class Main {
     	
     	double[] rS = bn.rejectionSampling(Integer.parseInt(args[2]));
     	System.out.println(rS[0] + ", "+rS[1]);
-    	//double lW = bn.likelihoodWeightingSampling(Integer.parseInt(args[2]));
+    	double[] lW = bn.likelihoodWeightingSampling(Integer.parseInt(args[2]));
+    	System.out.println(lW[0] + ", "+lW[1]);
     	
     }
 }

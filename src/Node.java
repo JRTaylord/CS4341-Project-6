@@ -6,7 +6,7 @@ public class Node {
     String type;
     ArrayList<Edge> parentEdges; //edges that this node is the child on
     Boolean value = null;
-
+    Double probability;
     public Node(String name, ArrayList<Double> probabilities) {
         this.name = name;
         this.probabilities = probabilities;
@@ -48,6 +48,10 @@ public class Node {
 		return this.value.booleanValue();
 	}
 
+	/**
+	 * This function purposefully does NOT set value
+	 * @return
+	 */
 	private Boolean getValueFromParents() {
 		int binaryCode = 0;
 		for (Edge edge: this.parentEdges) {
@@ -55,7 +59,7 @@ public class Node {
 				binaryCode += Math.pow(2, edge.parentN);
 			}
 		}
-		Double probability = probabilities.get(binaryCode);
+		probability = probabilities.get(binaryCode);
 		double r = Math.random();
 		if (r < probability) {
 			return true;
@@ -63,4 +67,17 @@ public class Node {
 			return false;
 		}
 	}
+
+	public double getProbability() {
+		if (this.probability == null) {
+			
+			this.getValueFromParents(); //note this function sets probabilty but NOT value
+
+		}
+		if (!value) {//if false we want to return probability of false, not of true
+			return 1.0 - this.probability;
+		}
+		return this.probability;
+	}
+
 }
