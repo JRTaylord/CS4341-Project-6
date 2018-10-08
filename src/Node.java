@@ -10,7 +10,7 @@ public class Node {
     public Node(String name, ArrayList<Double> probabilities) {
         this.name = name;
         this.probabilities = probabilities;
-        type = null;
+        type = "";
         parentEdges = new ArrayList<Edge>();
     }
 

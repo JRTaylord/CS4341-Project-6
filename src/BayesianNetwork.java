@@ -13,8 +13,7 @@ public class BayesianNetwork {
 	double weight = 0;
 
 	/**
-	 * @param input:
-	 *            an ArrayList of input Strings in the format of Option B
+	 * @param input: an ArrayList of input Strings in the format of Option B
 	 */
 	public BayesianNetwork(ArrayList<String> input) {
 		this.nodes = new ArrayList<>();
@@ -123,7 +122,7 @@ public class BayesianNetwork {
 	/**
 	 * Acts as a wrapper for the testable method of assigning states to nodes in the
 	 * Bayesian Network
-	 * 
+	 *
 	 * @param fileName
 	 */
 	public void assignNodesFileWrapper(String fileName) {
