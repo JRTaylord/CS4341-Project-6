@@ -8,9 +8,9 @@ public class Main {
 		bn.assignNodesFileWrapper(args[1]);
 
 		double[] rS = bn.rejectionSampling(Integer.parseInt(args[2]));
-		System.out.println(rS[0] + "," + rS[1]);
+		System.out.println("Rejection Sampling: "+rS[0] + "," + rS[1]);
 		double[] lW = bn.likelihoodWeightingSampling(Integer.parseInt(args[2]));
-		System.out.println(lW[0] + "," + lW[1]);
+		System.out.println("Weighted Liklihood Sampling: "+ lW[0] + "," + lW[1]);
 		
 		/**
 		 * Generates data for tests 
