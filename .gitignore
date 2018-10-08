@@ -4,3 +4,7 @@
 
 *.iml
 /bin/
+
+\.classpath
+
+\.project
